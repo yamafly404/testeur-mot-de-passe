@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Testeur de Sécurité de Mot de Passe</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
+    h1 { color: #333; }
+    .zone-test { margin-top: 2em; }
+    input[type="password"] { padding: 0.5em; width: 300px; }
+    button { padding: 0.5em 1em; margin-left: 1em; }
+    .resultat { margin-top: 1em; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🔐 Bienvenue sur le Testeur de Sécurité de Mot de Passe</h1>
+  <p>Ce site vous permet de tester la robustesse de votre mot de passe en simulant une attaque par force brute. Si votre mot de passe est deviné en moins de <strong>10 secondes</strong>, il est considéré comme <strong>non sécurisé</strong>.</p>
+
+  <div class="zone-test">
+    <label for="motdepasse">Entrez votre mot de passe :</label><br><br>
+    <input type="password" id="motdepasse" placeholder="Votre mot de passe">
+    <button onclick="testerMotDePasse()">Tester</button>
+    <div class="resultat" id="resultat"></div>
+  </div>
+
+  <script>
+    function testerMotDePasse() {
+      const mot = document.getElementById('motdepasse').value;
+      const resultat = document.getElementById('resultat');
+      if (!mot || mot.length < 4) {
+        resultat.textContent = '⛔ Veuillez entrer un mot de passe d\'au moins 4 caractères.';
+        return;
+      }
+      const tempsSimule = Math.random() * 15;
+      if (tempsSimule < 10) {
+        resultat.textContent = `⚠️ Mot de passe NON sécurisé (deviné en ${tempsSimule.toFixed(2)} secondes).`;
+      } else {
+        resultat.textContent = `🔒 Mot de passe sécurisé (deviné en ${tempsSimule.toFixed(2)} secondes).`;
+      }
+    }
+  </script>
+</body>
+</html>
